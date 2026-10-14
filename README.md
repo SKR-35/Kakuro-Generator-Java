@@ -103,8 +103,7 @@ java -Xmx2g -jar target/kakuro-generator-0.1.0-SNAPSHOT.jar bank-report --db out
 The logical report never changes labels, acceptance rules or puzzle records. Its
 technique counts, forced moves, eliminations and dependency depth are measurements
 of supported rules, **not calibrated human difficulty**. STALLED is not proof that
-guessing is necessary; exhaustion is reported separately. See
-[difficulty calibration](docs/DIFFICULTY_CALIBRATION.md).
+guessing is necessary; exhaustion is reported separately.
 
 Production processes Easy → Medium → Hard → Evil, then dimensions in ascending
 order within each difficulty. Each bucket has its own versioned seed stream and
@@ -132,9 +131,6 @@ files together while open. For a file-copy backup, close all database connection
 main database file while WAL connections are active. Run
 verification after production and before using a bank. Existing records are counted
 but are not silently revalidated or relabeled during target planning.
-
-See [production audit and contracts](docs/BANK_PRODUCTION.md) for durability,
-reproducibility, statistics and operational limits.
 
 ## Opt-in wide-board experiments
 
