@@ -221,10 +221,7 @@ answer keys target two columns by three rows, reducing capacity for larger board
 Answers show digits and shaded black cells without repeating clue sums.
 Wide boards scale within the selected trim without rotating. Clues are at least
 7 points; layouts that cannot fit legibly are rejected. Margin options require a
-KDP preset. No bleed is implemented. See [PDF publishing documentation](docs/PDF_LAYOUT.md)
-for margins, publishing limits and the regenerated 18-page mixed review booklets
-and 7-page six-up square examples. These short samples are below KDP's publishing
-page minimum; the CLI reports their actual page counts and warns accordingly.
+KDP preset. No bleed is implemented.
 
 ```powershell
 java -jar target/kakuro-generator-0.1.0-SNAPSHOT.jar --db output/solution-review/puzzles.db --export-ids 1,3,4,5,6,8,9,10,11,13,14,15 --page-size kdp-8.25 --outfile output/kdp-review/kdp-8.25.pdf
@@ -248,7 +245,7 @@ Geometry uses randomized row-pattern constraint search across the full rectangul
 interior. Partial boards may have unfinished vertical runs; completed boards must
 pass legality, connectivity and a solver-independent quality gate before filling.
 Density, spatial coverage, run variety/balance, diagonal concentration and interior
-clues are checked. See [geometry thresholds](docs/GEOMETRY_QUALITY.md).
+clues are checked.
 The top row and left column remain black; all white cells belong to one across
 and one down run. Generation currently uses maximum run lengths 4/5/6 for
 Easy/Medium/Hard-or-Evil; validation and solving still support lengths 2–9.
@@ -306,8 +303,7 @@ Independent `logical-v1` analysis now reports fixed-digit deductions, sum bounds
 run-combination and placement reasoning, candidate eliminations, forced moves and
 dependency depth. It consumes clues only and does not change generation labels or
 stored scores. STALLED means beyond its supported rules, not that a human must
-guess. The 65-puzzle [calibration report](docs/DIFFICULTY_CALIBRATION.md) documents
-overlaps and why there is insufficient evidence to replace classification thresholds.
+guess.
 
 ```powershell
 java -jar target/kakuro-generator-0.1.0-SNAPSHOT.jar --db output/solution-review/puzzles.db --analyze-db
@@ -352,7 +348,7 @@ The requested 11–15 squares and 8×12, 10×15, 10×20, 15×10 and 20×10 recta
 local accepted examples. Support for an input dimension does not guarantee success
 for every seed/difficulty. The full 7–20 dimension/difficulty matrix is not benchmarked.
 `tools/DimensionBenchmark.java` records bounded candidate, geometry, uniqueness and
-difficulty acceptance statistics; see [the report](docs/LARGE_BOARDS.md).
+difficulty acceptance statistics.
 
 Dependencies: picocli 4.7.7, SQLite JDBC 3.53.4.0, PDFBox 3.0.8, SLF4J no-op 2.0.17;
 JUnit Jupiter 5.12.2 for tests. No application framework or ORM.
@@ -371,5 +367,3 @@ the supported baseline.
 - pdf: vector booklet writer and local PNG inspection utility
 - cli: options, validation, orchestration, resumable bank targets, reports, export and verification
 - .github/workflows/ci.yml: Java 21 build/tests on Linux and Windows
-
-See [decisions](DECISIONS.md) for the application contract.
