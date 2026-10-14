@@ -12,7 +12,6 @@
 *.sqlite
 *.sqlite3
 *.pdf
-*.csv
 /output/
 .DS_Store
 Thumbs.db
