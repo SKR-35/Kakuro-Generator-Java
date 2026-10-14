@@ -9,6 +9,31 @@ import java.util.List;
 
 /** Solver-independent publication heuristics. Denominators exclude the mandatory clue border. */
 public final class GeometryQualityEvaluator {
+    /** Exact rejection-only fast path. Survivors still undergo the complete evaluator. */
+    public boolean accepts(int height, int width, boolean[] white) {
+        if (!GeometryBuilder.supported(height,width) || white.length != height*width)
+            throw new IllegalArgumentException("Unsupported geometry dimensions");
+        int nr=height-1,nc=width-1,total=0,across=0,down=0;
+        int[] columns=new int[nc],quadrantArea=new int[4],quadrantWhite=new int[4];
+        for(int r=1;r<height;r++) {
+            int row=0;
+            for(int c=1;c<width;c++) {
+                int q=quadrant(r,c,nr,nc);quadrantArea[q]++;
+                if(!white[r*width+c])continue;
+                row++;columns[c-1]++;total++;quadrantWhite[q]++;
+                if(!white[r*width+c-1])across++;
+                if(!white[(r-1)*width+c])down++;
+            }
+            if(row<(int)Math.ceil(nc*.40))return false;
+        }
+        double density=total/(double)(nr*nc);
+        if(density<.52 || density>.80)return false;
+        for(int column:columns)if(column<(int)Math.ceil(nr*.40))return false;
+        if(across<nr || down<nc || Math.min(across,down)/(double)Math.max(across,down)<.70)return false;
+        for(int q=0;q<4;q++)if(quadrantWhite[q]/(double)quadrantArea[q]<.40)return false;
+        return evaluate(height,width,white).accepted();
+    }
+
     public record Metrics(double density, double rowCoverage, double columnCoverage,
             int minimumRowWhites, int minimumColumnWhites, int acrossRuns, int downRuns,
             double runBalance, List<Integer> runLengthCounts, int components,
@@ -51,17 +76,21 @@ public final class GeometryQualityEvaluator {
         }
         int longest = 0, maxBand = 0;
         for (int slope : new int[]{-1, 1}) {
-            for (int offset = -2 * Math.max(nr,nc); offset <= 2 * Math.max(nr,nc); offset++) {
-                int band = 0;
-                for (int r = 1; r < height; r++) for (int c = 1; c < width; c++) {
-                    if (white[r * width + c] && Math.abs(c - slope * r - offset) <= 1) band++;
-                }
-                maxBand = Math.max(maxBand, band);
-            }
+            int extent = 2 * Math.max(nr,nc);
+            int[] bands = new int[2 * extent + 1];
+            // A white cell contributes to exactly three neighboring offsets.
             for (int r = 1; r < height; r++) for (int c = 1; c < width; c++) {
-                int length = 0;
-                for (int rr = r, cc = c; rr < height && cc > 0 && cc < width && white[rr * width + cc]; rr++, cc += slope) length++;
-                longest = Math.max(longest, length);
+                if (!white[r * width + c]) continue;
+                int offset = c - slope * r + extent;
+                for (int i = Math.max(0,offset-1); i <= Math.min(bands.length-1,offset+1); i++) bands[i]++;
+            }
+            for (int band : bands) maxBand = Math.max(maxBand,band);
+            int[] lengths = new int[white.length];
+            for (int r = height-1; r > 0; r--) for (int c = 1; c < width; c++) if (white[r*width+c]) {
+                int next = c+slope;
+                int length = 1 + (r+1 < height && next > 0 && next < width ? lengths[(r+1)*width+next] : 0);
+                lengths[r*width+c] = length;
+                longest = Math.max(longest,length);
             }
         }
         double density = total / (double) (nr * nc);

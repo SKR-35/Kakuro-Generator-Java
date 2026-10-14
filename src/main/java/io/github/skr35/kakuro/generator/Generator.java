@@ -21,6 +21,8 @@ public final class Generator {
             long geometryStates, int fillAttempts, int fillSuccesses, int solverCalls, int unique,
             int inBand, int inconclusive, int diversityRejected, int geometryExhaustions, int solutionQualityRejected) { }
     public record Generated(Puzzle puzzle, int attempts, Statistics statistics) { }
+    /** Disjoint final gates, separate from the legacy overlapping stage counters. */
+    public record AcceptanceDiagnostics(int inBandQualityRejected, int eligible, int layoutRejected, int numericalRejected) { }
 
     public Generated generate(Difficulty difficulty, int size, long seed, int maxAttempts) {
         return generate(difficulty, size, size, seed, maxAttempts);
@@ -41,6 +43,10 @@ public final class Generator {
         private int geometryRequests, fillAttempts, fillSuccesses, solverCalls, inBand, inconclusive, diversityRejected;
         private int attempt, unique, rejectedLayouts;
         private int solutionQualityRejected;
+        private int inBandQualityRejected, eligible, layoutRejected, numericalRejected;
+        public AcceptanceDiagnostics acceptanceDiagnostics() {
+            return new AcceptanceDiagnostics(inBandQualityRejected, eligible, layoutRejected, numericalRejected);
+        }
         private final SolutionQualityEvaluator quality = new SolutionQualityEvaluator();
         private boolean[] white;
         private List<Run> runs;
@@ -130,10 +136,16 @@ public final class Generator {
             if (difficulty.accepts(score)) inBand++;
             boolean qualityAccepted = quality.evaluate(board, values).accepted();
             if (!qualityAccepted) solutionQualityRejected++;
-            if (difficulty.accepts(score) && qualityAccepted && layoutAllowed.test(board) && solutionAllowed.test(board,values)) {
-                // The solver derives the solution entirely from the clues.
-                return new Generated(new Puzzle(board, result.solutions().getFirst(), difficulty, score, seed,
-                        result.nodes()), attempt, statistics());
+            if (difficulty.accepts(score) && !qualityAccepted) inBandQualityRejected++;
+            if (difficulty.accepts(score) && qualityAccepted) {
+                eligible++;
+                if (!layoutAllowed.test(board)) layoutRejected++;
+                else if (!solutionAllowed.test(board,values)) numericalRejected++;
+                else {
+                    // The solver derives the solution entirely from the clues.
+                    return new Generated(new Puzzle(board, result.solutions().getFirst(), difficulty, score, seed,
+                            result.nodes()), attempt, statistics());
+                }
             }
             if (!layoutAllowed.test(board) || !solutionAllowed.test(board,values)) { diversityRejected++; anchor = null; white = null; continue; }
             // Broad masks are less forgiving than thin strips. Tune only proven-unique

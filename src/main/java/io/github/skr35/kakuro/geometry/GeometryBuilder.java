@@ -71,7 +71,7 @@ public final class GeometryBuilder {
             if (++visits > 1_000) return false;
             if (row == rows - 1) {
                 owner.completedMasks++;
-                boolean accepted = owner.evaluator.evaluate(rows, cols, white).accepted();
+                boolean accepted = owner.evaluator.accepts(rows, cols, white);
                 if (accepted) owner.acceptedMasks++;
                 return accepted;
             }

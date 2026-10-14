@@ -68,13 +68,13 @@ mvn clean verify
 Start a new bank (parent directories are created automatically):
 
 ```powershell
-java -Xmx2g -jar target/kakuro-generator-0.1.0-SNAPSHOT.jar bank --db output/bank/puzzles.db --sizes 8,10,12,15 --each 50 --seed 20261014 --workers 4 --max-attempts 5000 --max-slots 2000
+java -Xmx2g -jar target/kakuro-generator-0.1.0-SNAPSHOT.jar bank --db output/bank/puzzles.db --sizes 8,10,12,15 --each 50 --seed 20261014 --workers 2 --max-attempts 5000 --max-slots 100
 ```
 
 Safe resume, including after Ctrl+C or a slot-limit exit:
 
 ```powershell
-java -Xmx2g -jar target/kakuro-generator-0.1.0-SNAPSHOT.jar bank --db output/bank/puzzles.db --sizes 8,10,12,15 --each 50 --workers 4 --max-slots 2000
+java -Xmx2g -jar target/kakuro-generator-0.1.0-SNAPSHOT.jar bank --db output/bank/puzzles.db --sizes 8,10,12,15 --each 50 --workers 2 --max-slots 100
 ```
 
 Repeating either production command is safe: filled targets are skipped. Resume
@@ -131,6 +131,33 @@ files together while open. For a file-copy backup, close all database connection
 main database file while WAL connections are active. Run
 verification after production and before using a bank. Existing records are counted
 but are not silently revalidated or relabeled during target planning.
+
+### Performance and saturated targets
+
+The investigated seed bank reached 28 Easy 8×8 puzzles, then accepted none
+in its last 204 committed slots. The unchanged Easy band, solution-quality criteria
+and all-history geometry diversity jointly make this bucket difficult to fill.
+More candidate work does not guarantee progress.
+
+Worker-side diversity continuation and exact arithmetic/geometry optimizations
+preserve the original seed streams and checkpoints. Start with two workers and
+short invocation limits; higher worker counts are not automatically faster. A stale
+speculative continuation can replay once against the current accepted history:
+the selected path retains its attempt cap, but discarded work can add up to one
+extra cap per slot. Committed counters exclude that discarded work. The
+new-bank seed example above is not a command for overriding an existing bank's seed.
+For the existing seed bank, inherit its seed and budget and try at most
+20 additional slots:
+
+```powershell
+java -Xmx2g -jar target/kakuro-generator-0.1.0-SNAPSHOT.jar bank --db output/bank/puzzles.db --target 8x8:EASY:50 --workers 2 --max-slots 20
+```
+
+If it remains stalled, work on another explicit bucket (for example
+`--target 8x8:MEDIUM:50`) rather than allowing the first bucket to block all work.
+Do not relax quality thresholds or delete stored layouts to force acceptance.
+Stop producers before replacing the application JAR. Do not run `mvn clean`
+while generation is active; `mvn verify` performs validation without cleaning.
 
 ## Opt-in wide-board experiments
 

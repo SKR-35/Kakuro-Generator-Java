@@ -16,18 +16,19 @@ public final class Solver {
 
     private static final int[] SUM = new int[512];
     private static final int[] COUNT = new int[512];
+    private static final int[][] COMBINATION_COUNTS = new int[10][46];
     static {
+        COMBINATION_COUNTS[0][0] = 1;
         for (int m = 1; m < 512; m++) {
             int bit = Integer.lowestOneBit(m);
             SUM[m] = SUM[m ^ bit] + Integer.numberOfTrailingZeros(bit) + 1;
             COUNT[m] = COUNT[m ^ bit] + 1;
+            COMBINATION_COUNTS[COUNT[m]][SUM[m]]++;
         }
     }
 
     public static int combinationCount(int length, int total) {
-        int n = 0;
-        for (int m = 0; m < 512; m++) if (COUNT[m] == length && SUM[m] == total) n++;
-        return n;
+        return length < 0 || length > 9 || total < 0 || total > 45 ? 0 : COMBINATION_COUNTS[length][total];
     }
 
     public Result solve(Board board, long nodeLimit) {
