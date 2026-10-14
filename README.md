@@ -43,13 +43,7 @@ generation time, child seed, database ID and fingerprint. Failed slots are
 explicitly reported and never replaced with a different difficulty.
 
 The latest digit-diversity review is in `output/solution-review`: 15 independently
-verified puzzles, a 30-page booklet and before/after measurements. See
-[solution quality](docs/SOLUTION_QUALITY.md), including performance regressions.
-The earlier large/rectangular review is in `output/dimensions-review`: ten puzzles,
-corresponding solutions, SQLite database, contact sheet and benchmark CSV. See
-[large-board review](docs/LARGE_BOARDS.md) for measured results and reproduction commands.
-The earlier 12-puzzle [geometry review](docs/GEOMETRY_REVIEW.md) remains available.
-The earlier [local verification](docs/LOCAL_VERIFICATION.md) describes the old generator.
+verified puzzles, a 30-page booklet and before/after measurements.
 
 ## Resumable SQLite puzzle-bank production
 
