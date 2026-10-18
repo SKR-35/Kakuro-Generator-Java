@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.skr35</groupId>
   <artifactId>kakuro-generator</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <name>Kakuro Generator Java</name>
   <description>Standalone, uniquely solvable Kakuro puzzle generator.</description>
 
@@ -97,4 +97,11 @@
       </plugin>
     </plugins>
   </build>
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Packages</name>
+      <url>https://maven.pkg.github.com/SKR-35/Kakuro-Generator-Java</url>
+    </repository>
+  </distributionManagement>
 </project>
