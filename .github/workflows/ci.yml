@@ -26,4 +26,4 @@ jobs:
         if: runner.os == 'Windows'
         run: .\mvnw.cmd --batch-mode --no-transfer-progress clean verify
       - name: Smoke-test executable JAR
-        run: java -jar target/kakuro-generator-0.1.0-SNAPSHOT.jar --help
+        run: java -jar target/kakuro-generator-1.0.0.jar --help
