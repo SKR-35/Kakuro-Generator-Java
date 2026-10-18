@@ -4,6 +4,7 @@ name: Publish Maven Package
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -18,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
@@ -29,12 +30,17 @@ jobs:
 
       - name: Verify release version
         shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          VERSION=$(./mvnw -q help:evaluate \
-            -Dexpression=project.version -DforceStdout)
-          test "${{ github.event.release.tag_name }}" = "v${VERSION}"
+          VERSION=$(mvn -q help:evaluate \
+            -Dexpression=project.version \
+            -DforceStdout)
+          if [ -n "$RELEASE_TAG" ]; then
+            test "$RELEASE_TAG" = "v${VERSION}"
+          fi
 
       - name: Build and publish
-        run: ./mvnw --batch-mode clean deploy
+        run: mvn --batch-mode clean deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
