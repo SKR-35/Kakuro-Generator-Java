@@ -3,9 +3,6 @@
 A standalone Java 21 command-line application that generates valid, proven-unique
 Kakuro puzzles, stores them in SQLite and exports printable A4 or no-bleed KDP PDF booklets.
 
-This is a new implementation, not a Python port. It uses its own algorithms,
-difficulty scale, database schema and versioned fingerprints.
-
 ## Build
 
 Install JDK 21 (recommended) and set JAVA_HOME. Maven Wrapper pins Maven 3.9.16.
